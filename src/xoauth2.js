@@ -86,7 +86,7 @@ XOAuth2Generator.prototype.getToken = function(callback) {
  *
  * Emits 'token': { user: User email-address, accessToken: the new accessToken, timeout: TTL in seconds}
  */
-XOAuth2Generator.prototype.updateToken = function(accessToken, timeout) {
+XOAuth2Generator.prototype.updateToken = function(accessToken, timeout, idToken) {
     this.token = this.buildXOAuth2Token(accessToken);
     this.accessToken = accessToken;
     timeout = Math.max(Number(timeout) || 0, 0);
@@ -95,7 +95,15 @@ XOAuth2Generator.prototype.updateToken = function(accessToken, timeout) {
     this.emit('token', {
         user: this.options.user,
         accessToken: accessToken || '',
-        timeout: Math.max(Math.floor((this.timeout - Date.now()) / 1000), 0)
+        timeout: Math.max(Math.floor((this.timeout - Date.now()) / 1000), 0),
+        /**
+         *  The OpenId spec (https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse)
+         *  indicates that a successful request will return an `id_token`, and my testing locally
+         *  indicates that all requests do return an `id_token` - however, I'm unable to find official
+         *  Google documentation for the endpoint that we're requesting here, so use the following safety
+         *  belts in case.
+         */
+        idToken: idToken || ''
     });
 };
 
@@ -161,7 +169,8 @@ XOAuth2Generator.prototype.generateToken = function(callback) {
         }
 
         if (data.access_token) {
-            self.updateToken(data.access_token, data.expires_in);
+            self.updateToken(data.access_token, data.expires_in, data.id_token);
+            // It's unnecessary to add the id_token to the callback - all we need to do is emit it for later use.
             return callback(null, self.token, self.accessToken);
         }
 
