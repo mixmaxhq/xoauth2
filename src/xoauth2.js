@@ -84,7 +84,7 @@ XOAuth2Generator.prototype.getToken = function(callback) {
  * @param {String} accessToken New access token
  * @param {Number} timeout Access token lifetime in seconds
  *
- * Emits 'token': { user: User email-address, accessToken: the new accessToken, timeout: TTL in seconds}
+ * Emits 'token': { user: User email-address, accessToken: the new accessToken, timeout: TTL in seconds, idToken: the new idToken}
  */
 XOAuth2Generator.prototype.updateToken = function(accessToken, timeout, idToken) {
     this.token = this.buildXOAuth2Token(accessToken);
