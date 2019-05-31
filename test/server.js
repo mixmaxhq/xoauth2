@@ -35,6 +35,8 @@ OAuthServer.prototype.addUser = function(username, refreshToken) {
 OAuthServer.prototype.generateAccessToken = function(refreshToken) {
     var username = this.tokens[refreshToken];
     var accessToken = crypto.randomBytes(10).toString('base64');
+    // Hardcode for testing.
+    const idToken = username === 'userwithoutidtoken@example.com' ? undefined : crypto.randomBytes(10).toString('base64');
 
     if (!username) {
         return {
@@ -44,15 +46,17 @@ OAuthServer.prototype.generateAccessToken = function(refreshToken) {
 
     this.users[username].accessToken = accessToken;
     this.users[username].expiresIn = Date.now + this.options.expiresIn * 1000;
+    this.users[username].idToken = idToken;
 
     if (this.options.onUpdate) {
-        this.options.onUpdate(username, accessToken);
+        this.options.onUpdate(username, accessToken, idToken);
     }
 
     return {
         access_token: accessToken,
         expires_in: this.options.expiresIn,
-        token_type: 'Bearer'
+        token_type: 'Bearer',
+        id_token: idToken
     };
 };
 
