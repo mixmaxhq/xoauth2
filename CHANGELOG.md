@@ -1,5 +1,7 @@
 # Changelog
 
+* 1.3.0 emit id tokens when we refresh access tokens.
+
 ## v1.2.0 2016-07-29
 
   * Added support for webtokens
